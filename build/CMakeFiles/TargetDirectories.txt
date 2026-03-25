@@ -1,0 +1,3 @@
+/Users/trevorwinger/Desktop/shape_project/build/CMakeFiles/shape_manager.dir
+/Users/trevorwinger/Desktop/shape_project/build/CMakeFiles/edit_cache.dir
+/Users/trevorwinger/Desktop/shape_project/build/CMakeFiles/rebuild_cache.dir
