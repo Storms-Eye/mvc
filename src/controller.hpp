@@ -1,4 +1,4 @@
-#include <std::string>
+#include <string>
 
 class ShapeManager
 {
@@ -12,5 +12,5 @@ public:
     Shape *getSelectedShape();
     const Shape *getSelectedShape() const;
     double computeArea(const Shape &s) const;
-    void selectShape();
+    void selectShape()
 };
