@@ -169,3 +169,49 @@ void ShapeManager::selectShape()
     lastMessage = found ? "Shape selected" : "Shape ID not found";
     pause();
 }
+void ShapeManager::searchByType() {
+        clearScreen();
+        drawHeader();
+
+        string query = readString("Enter type to search for: ");
+        for (char& c : query) {
+            c = static_cast<char>(tolower(static_cast<unsigned char>(c)));
+        }
+
+        cout << "\nSearch Results\n";
+        cout << "--------------\n";
+
+        int matches = 0;
+        for (const auto& s : shapes) {
+            string typeLower = s.type;
+            for (char& c : typeLower) {
+                c = static_cast<char>(tolower(static_cast<unsigned char>(c)));
+            }
+
+            if (typeLower.find(query) != string::npos) {
+                cout << "ID " << s.id << ": " << s.type
+                     << " at (" << s.x << ", " << s.y << ")\n";
+                matches++;
+            }
+        }
+
+        if (matches == 0) {
+            cout << "No shapes matched the search.\n";
+        }
+
+        pause();
+        lastMessage = "Search complete";
+    }
+void clearAllShapes() {
+        string confirm = readString("Type YES to clear all shapes: ");
+        if (confirm == "YES") {
+            shapes.clear();
+            lastMessage = "All shapes cleared";
+        } else {
+            lastMessage = "Clear operation canceled";
+        }
+        pause();
+    }
+
+}
+
