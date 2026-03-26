@@ -1,126 +1,82 @@
 #include "model.hpp"
+#include "view.hpp"
+#include <algorithm>
+#include <fstream>
+#include <iostream>
 #include <sstream>
+#include <string>
 
-Shape::Shape(const std::string &type)
+int clampColor(int value)
 {
-    double x = readDouble("Enter x position: ");
-    double y = readDouble("Enter y position: ");
-    double w = readDouble("Enter width: ");
-    double h = readDouble("Enter height: ");
+    if (value < 0)
+        return 0;
+    if (value > 255)
+        return 255;
+    return value;
+}
 
-    if (w <= 0 || h <= 0)
-    {
-        lastMessage = "Width and height must be positive";
-        pause();
-        return;
-    }
-
-    int r = readInt("Enter color R (0-255): ");
-    int g = readInt("Enter color G (0-255): ");
-    int b = readInt("Enter color B (0-255): ");
-
-    r = clampColor(r);
-    g = clampColor(g);
-    b = clampColor(b);
-
+void ShapeManager::addShape(const std::string &type, Shape &s)
+{
     for (auto &s : shapes)
     {
         s.selected = false;
     }
 
-    id = nextId++;
-    type = type;
-    x = x;
-    y = y;
-    width = w;
-    height = h;
-    color = {r, g, b};
-    selected = true;
+    s.selected = true;
+    s.id = nextId++;
+    s.type = type;
 
-    if (type == "Circle")
-    {
-        height = width;
-    }
-
-    lastMessage = type + " added and selected";
-    pause();
-}
-
-void ShapeManager::addShape(const Shape &s)
-{
     shapes.push_back(s);
 }
 
-void Shape::moveSelectedShape()
+bool ShapeManager::moveSelectedShape(int dx, int dy, std::string &message)
 {
     Shape *s = getSelectedShape();
     if (!s)
     {
-        lastMessage = "No selected shape to move";
-        pause();
-        return;
+        return false;
     }
-
-    double dx = readDouble("Enter delta x: ");
-    double dy = readDouble("Enter delta y: ");
 
     s->x += dx;
     s->y += dy;
 
-    ostd::stringstream msg;
+    std::stringstream msg;
     msg << "Moved shape " << s->id << " to (" << s->x << ", " << s->y << ")";
-    lastMessage = msg.str();
-    pause();
+    message = msg.str();
+    
+    return true;
 }
-void ShapeManager::resizeSelectedShape()
+
+bool ShapeManager::resizeSelectedShape(int newW, int newH)
 {
     Shape *s = getSelectedShape();
     if (!s)
     {
-        lastMessage = "No selected shape to resize";
-        pause();
-        return;
-    }
-
-    double newW = readDouble("Enter new width: ");
-    double newH = readDouble("Enter new height: ");
-
-    if (newW <= 0 || newH <= 0)
-    {
-        lastMessage = "Width and height must be positive";
-        pause();
-        return;
+        return false;
     }
 
     s->width = newW;
     s->height = (s->type == "Circle") ? newW : newH;
 
-    lastMessage = "Selected shape resized";
-    pause();
+    return true;
 }
 
-void ShapeManager::recolorSelectedShape()
+bool ShapeManager::recolorSelectedShape(int r, int g, int b)
 {
     Shape *s = getSelectedShape();
     if (!s)
     {
-        lastMessage = "No selected shape to recolor";
-        pause();
-        return;
+        return false;
     }
-
-    int r = readInt("Enter new R (0-255): ");
-    int g = readInt("Enter new G (0-255): ");
-    int b = readInt("Enter new B (0-255): ");
 
     s->color.r = clampColor(r);
     s->color.g = clampColor(g);
     s->color.b = clampColor(b);
 
-    lastMessage = "Selected shape color updated";
-    pause();
+    return true;
 }
-void ShapeManager::deleteSelectedShape()
+
+bool ShapeManager::deleteSelectedShape()
 {
     auto it = remove_if(shapes.begin(), shapes.end(), [](const Shape &s)
     {
@@ -129,9 +85,7 @@ void ShapeManager::deleteSelectedShape()
 
     if (it == shapes.end())
     {
-        lastMessage = "No selected shape to delete";
-        pause();
-        return;
+        return false;
     }
 
     shapes.erase(it, shapes.end());
@@ -140,9 +94,7 @@ void ShapeManager::deleteSelectedShape()
     {
         shapes.front().selected = true;
     }
-
-    lastMessage = "Selected shape deleted";
-    pause();
+    return true;
 }
 
 void ShapeManager::seedData()
@@ -190,16 +142,8 @@ double ShapeManager::computeArea(const Shape &s) const
     return 0.0;
 }
 
-void ShapeManager::selectShape()
+bool ShapeManager::selectShape(int id)
 {
-    if (shapes.empty())
-    {
-        lastMessage = "No shapes available to select";
-        pause();
-        return;
-    }
-
-    int id = readInt("Enter shape ID to select: ");
     bool found = false;
 
     for (auto &s : shapes)
@@ -212,16 +156,11 @@ void ShapeManager::selectShape()
         }
     }
 
-    lastMessage = found ? "Shape selected" : "Shape ID not found";
-    pause();
+    return found;
 }
 
-void ShapeManager::searchByType()
+void ShapeManager::searchByType(std::string &query)
 {
-    clearScreen();
-    drawHeader();
-
-    string query = readString("Enter type to search for: ");
     for (char &c : query)
     {
         c = static_cast<char>(tolower(static_cast<unsigned char>(c)));
@@ -239,10 +178,10 @@ void ShapeManager::searchByType()
             c = static_cast<char>(tolower(static_cast<unsigned char>(c)));
         }
 
-        if (typeLower.find(query) != string::npos)
+        if (typeLower.find(query) != std::string::npos)
         {
             std::cout << "ID " << s.id << ": " << s.type
-                 << " at (" << s.x << ", " << s.y << ")\n";
+                      << " at (" << s.x << ", " << s.y << ")\n";
             matches++;
         }
     }
@@ -251,25 +190,13 @@ void ShapeManager::searchByType()
     {
         std::cout << "No shapes matched the search.\n";
     }
-
-    pause();
-    lastMessage = "Search complete";
 }
 
 void ShapeManager::clearAllShapes()
 {
-    std::string confirm = readString("Type YES to clear all shapes: ");
-    if (confirm == "YES")
-    {
-        shapes.clear();
-        lastMessage = "All shapes cleared";
-    }
-    else
-    {
-        lastMessage = "Clear operation canceled";
-    }
-    pause();
-}
+    shapes.clear();
+    // Old code didn't reset ID.
+    nextId = 1;
 }
 
 void ShapeManager::sortShapesByArea()
@@ -278,7 +205,99 @@ void ShapeManager::sortShapesByArea()
     {
         return computeArea(a) < computeArea(b);
     });
+}
 
-    lastMessage = "Shapes sorted by area";
-    pause();
+bool ShapeManager::saveToFile(const std::string &filename)
+{
+    std::ofstream out(filename);
+
+    if (!out)
+    {
+        return false;
+    }
+
+    out << nextId << "\n";
+    out << shapes.size() << "\n";
+
+    for (const auto &s : shapes)
+    {
+        out << s.id << "|"
+            << s.type << "|"
+            << s.x << "|"
+            << s.y << "|"
+            << s.width << "|"
+            << s.height << "|"
+            << s.color.r << "|"
+            << s.color.g << "|"
+            << s.color.b << "|"
+            << s.selected << "\n";
+    }
+
+    return true;
+}
+
+bool ShapeManager::loadFromFile(const std::string &filename)
+{
+    std::ifstream in(filename);
+
+    if (!in)
+    {
+        return false;
+    }
+
+    std::vector<Shape> loadedShapes;
+    int loadedNextId = 1;
+    size_t count = 0;
+
+    std::string line;
+    if (!getline(in, line))
+    {
+        return false;
+    }
+    loadedNextId = stoi(line);
+
+    if (!getline(in, line))
+    {
+        return false;
+    }
+    count = static_cast<size_t>(stoul(line));
+
+    for (size_t i = 0; i < count; ++i)
+    {
+        if (!getline(in, line))
+        {
+            return false;
+        }
+
+        std::stringstream ss(line);
+        std::vector<std::string> parts;
+        std::string part;
+
+        while (getline(ss, part, '|'))
+        {
+            parts.push_back(part);
+        }
+
+        if (parts.size() != 10)
+        {
+            return false;
+        }
+
+        Shape s;
+        s.id = stoi(parts[0]);
+        s.type = parts[1];
+        s.x = stod(parts[2]);
+        s.y = stod(parts[3]);
+        s.width = stod(parts[4]);
+        s.height = stod(parts[5]);
+        s.color.r = stoi(parts[6]);
+        s.color.g = stoi(parts[7]);
+        s.color.b = stoi(parts[8]);
+        s.selected = (parts[9] == "1");
+
+        loadedShapes.push_back(s);
+    }
+
+    shapes = loadedShapes;
+    nextId = loadedNextId;
 }

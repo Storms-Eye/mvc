@@ -9,6 +9,10 @@ private:
     std::string lastMessage;
 
 public:
+    void pause();
+
+    void readShape(Shape &shape);
+
     int readInt(const std::string &prompt);
     double readDouble(const std::string &prompt);
 
@@ -18,7 +22,4 @@ public:
     void drawShapes(const std::vector<Shape>& shapes);
     void drawMenu();
     void showStatistics(const std::vector<Shape>& shapes);
-
-    void saveToFile();
-    void loadFromFile();
 };

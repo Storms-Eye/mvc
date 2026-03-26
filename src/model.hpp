@@ -1,8 +1,8 @@
-#include <string>
 #include <iostream>
-#include <vector>
 #include <istream>
 #include <ostream>
+#include <string>
+#include <vector>
 
 struct Color
 {
@@ -11,13 +11,7 @@ struct Color
     int b = 255;
 };
 
-class Shape
-{
-public:
-    Shape(const std::string &type);
-
-    void moveSelectedShape();
-
+struct Shape {
     int id = 0;
     std::string type;
     double x = 0.0;
@@ -37,15 +31,15 @@ private:
 
 public:
     const std::vector<Shape> &getShapes();
-    void addShape(const Shape &s);
+    void addShape(const std::string &type, Shape &s);
 
+    bool saveToFile(const std::string &filename);
+    bool loadFromFile(const std::string &filename);
 
-    void saveToFile();
-    void loadFromFile();
-
-    void resizeSelectedShape();
-    void recolorSelectedShape();
-    void deleteSelectedShape();
+    bool resizeSelectedShape(int newW, int newH);
+    bool recolorSelectedShape(int r, int g, int b);
+    bool deleteSelectedShape();
+    bool moveSelectedShape(int dx, int dy, std::string &message);
 
     void seedData();
 
@@ -53,8 +47,8 @@ public:
     const Shape *getSelectedShape() const;
     double computeArea(const Shape &s) const;
 
-    void selectShape();
-    void searchByType();
+    bool selectShape(int id);
+    void searchByType(std::string &query);
     void clearAllShapes();
 
     void sortShapesByArea();

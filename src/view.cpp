@@ -1,10 +1,19 @@
 #include "view.hpp"
 #include <fstream>
-#include <iostream>
 #include <iomanip>
+#include <iostream>
 #include <sstream>
 #include <string>
 #include <vector>
+
+int clampColor(int value)
+{
+    if (value < 0)
+        return 0;
+    if (value > 255)
+        return 255;
+    return value;
+}
 
 void Menu::clearScreen()
 {
@@ -12,6 +21,38 @@ void Menu::clearScreen()
     {
         std::cout << '\n';
     }
+}
+
+void Menu::readShape(Shape &shape)
+{
+    int r, g, b;
+    double x, y, w, h;
+
+    x = readDouble("Enter x position: ");
+    y = readDouble("Enter y position: ");
+    w = readDouble("Enter width: ");
+    h = readDouble("Enter height: ");
+
+    if (w <= 0 || h <= 0)
+    {
+        lastMessage = "Width and height must be positive";
+        pause();
+        return;
+    }
+
+    r = readInt("Enter color R (0-255): ");
+    g = readInt("Enter color G (0-255): ");
+    b = readInt("Enter color B (0-255): ");
+
+    r = clampColor(r);
+    g = clampColor(g);
+    b = clampColor(b);
+
+    shape.color = {r, g, b};
+    shape.x = x;
+    shape.y = y;
+    shape.width = w;
+    shape.height = h;
 }
 
 void Menu::drawHeader()
@@ -22,7 +63,7 @@ void Menu::drawHeader()
     std::cout << "Last message: " << lastMessage << "\n\n";
 }
 
-void Menu::drawShapes(const std::vector<Shape>& shapes)
+void Menu::drawShapes(const std::vector<Shape> &shapes)
 {
     if (shapes.empty())
     {
@@ -81,7 +122,7 @@ void Menu::drawMenu()
     std::cout << "14. Exit\n\n";
 }
 
-void Menu::showStatistics(const std::vector<Shape>& shapes)
+void Menu::showStatistics(const std::vector<Shape> &shapes)
 {
     drawHeader();
 
@@ -125,117 +166,6 @@ void Menu::showStatistics(const std::vector<Shape>& shapes)
     lastMessage = "Displayed statistics";
 }
 
-void Menu::saveToFile()
-{
-    std::string filename = readString("Enter filename to save: ");
-    std::ofstream out(filename);
-
-    if (!out)
-    {
-        lastMessage = "Failed to open file for saving";
-        pause();
-        return;
-    }
-
-    out << nextId << "\n";
-    out << shapes.size() << "\n";
-
-    for (const auto &s : shapes)
-    {
-        out << s.id << "|"
-            << s.type << "|"
-            << s.x << "|"
-            << s.y << "|"
-            << s.width << "|"
-            << s.height << "|"
-            << s.color.r << "|"
-            << s.color.g << "|"
-            << s.color.b << "|"
-            << s.selected << "\n";
-    }
-
-    lastMessage = "Shapes saved to file";
-    pause();
-}
-
-void Menu::loadFromFile()
-{
-    std::string filename = readString("Enter filename to load: ");
-    std::ifstream in(filename);
-
-    if (!in)
-    {
-        lastMessage = "Failed to open file for loading";
-        pause();
-        return;
-    }
-
-    std::vector<Shape> loadedShapes;
-    int loadedNextId = 1;
-    size_t count = 0;
-
-    std::string line;
-    if (!getline(in, line))
-    {
-        lastMessage = "Invalid file format";
-        pause();
-        return;
-    }
-    loadedNextId = stoi(line);
-
-    if (!getline(in, line))
-    {
-        lastMessage = "Invalid file format";
-        pause();
-        return;
-    }
-    count = static_cast<size_t>(stoul(line));
-    for (size_t i = 0; i < count; ++i)
-    {
-        if (!getline(in, line))
-        {
-            lastMessage = "Unexpected end of file";
-            pause();
-            return;
-        }
-
-        std::stringstream ss(line);
-        std::vector<std::string> parts;
-        std::string part;
-
-        while (getline(ss, part, '|'))
-        {
-            parts.push_back(part);
-        }
-
-        if (parts.size() != 10)
-        {
-            lastMessage = "Corrupted shape record";
-            pause();
-            return;
-        }
-
-        Shape s;
-        s.id = stoi(parts[0]);
-        s.type = parts[1];
-        s.x = stod(parts[2]);
-        s.y = stod(parts[3]);
-        s.width = stod(parts[4]);
-        s.height = stod(parts[5]);
-        s.color.r = stoi(parts[6]);
-        s.color.g = stoi(parts[7]);
-        s.color.b = stoi(parts[8]);
-        s.selected = (parts[9] == "1");
-
-        loadedShapes.push_back(s);
-    }
-
-    shapes = loadedShapes;
-    nextId = loadedNextId;
-    lastMessage = "Shapes loaded from file";
-    pause();
-}
-
 std::string Menu::readString(const std::string &prompt)
 {
     std::cout << prompt;
@@ -265,7 +195,7 @@ int Menu::readInt(const std::string &prompt)
     }
 }
 
-double Menu::readDouble(const std::string& prompt)
+double Menu::readDouble(const std::string &prompt)
 {
     while (true)
     {
@@ -284,4 +214,11 @@ double Menu::readDouble(const std::string& prompt)
 
         std::cout << "Invalid numeric input. Try again.\n";
     }
+}
+
+void Menu::pause()
+{
+    std::cout << "\nPress Enter to continue...";
+    std::string dummy;
+    std::getline(std::cin, dummy);
 }

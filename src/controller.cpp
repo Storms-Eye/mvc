@@ -9,56 +9,177 @@ void Controller::run()
         menu.drawHeader();
         menu.drawShapes(manager.getShapes());
         menu.drawMenu();
-        
-        manager.handleMenuChoice();
+
+        handleMenuChoice();
     }
 }
 
-
 void Controller::handleMenuChoice()
 {
-    int choice = readInt("Enter choice: ");
+    int choice = menu.readInt("Enter choice: ");
+
+    Shape s;
+    std::string input;
 
     switch (choice)
     {
     case 1:
-        manager.addShape(Shape("Rectangle"));
+        menu.readShape(s);
+        manager.addShape("Rectangle", s);
+
+        lastMessage = s.type + " added and selected";
+        menu.pause();
         break;
     case 2:
-        manager.addShape(Shape("Circle"));
+        menu.readShape(s);
+        manager.addShape("Circle", s);
+
+        lastMessage = s.type + " added and selected";
+        menu.pause();
         break;
     case 3:
-        selectShape();
+        if (manager.getShapes().empty())
+        {
+            lastMessage = "No shapes available to select";
+            menu.pause();
+            break;
+        }
+
+        int id = menu.readInt("Enter shape ID to select: ");
+        bool res = manager.selectShape(id);
+        if (!res)
+        {
+            lastMessage = "Shape ID not found";
+        }
+        else
+        {
+            lastMessage = "Shape selected";
+        }
+
+        menu.pause();
+
         break;
     case 4:
-        moveSelectedShape();
+        double dx = menu.readDouble("Enter delta x: ");
+        double dy = menu.readDouble("Enter delta y: ");
+        bool res = manager.moveSelectedShape(dx, dy, input);
+        if (res)
+        {
+            lastMessage = input;
+        }
+        else
+        {
+            lastMessage = "No selected shape to move";
+        }
         break;
     case 5:
-        resizeSelectedShape();
+        double newW = menu.readDouble("Enter new width: ");
+        double newH = menu.readDouble("Enter new height: ");
+
+        if (newW <= 0 || newH <= 0)
+        {
+            lastMessage = "Width and height must be positive";
+            menu.pause();
+            return;
+        }
+        bool res = manager.resizeSelectedShape(newW, newH);
+        if (res)
+        {
+            lastMessage = "Selected shape resized";
+        }
+        else
+        {
+            lastMessage = "No selected shape to resize";
+        }
+        menu.pause();
         break;
     case 6:
-        recolorSelectedShape();
+        int r = menu.readInt("Enter new R (0-255): ");
+        int g = menu.readInt("Enter new G (0-255): ");
+        int b = menu.readInt("Enter new B (0-255): ");
+
+        bool res = manager.recolorSelectedShape(r, g, b);
+        if (res)
+        {
+            lastMessage = "Selected shape color updated";
+        }
+        else
+        {
+            lastMessage = "No selected shape to recolor";
+        }
+        menu.pause();
         break;
     case 7:
-        deleteSelectedShape();
+
+        bool res = manager.deleteSelectedShape();
+        if (res)
+        {
+            lastMessage = "Selected shape deleted";
+        }
+        else
+        {
+            lastMessage = "No selected shape to delete";
+        }
+        menu.pause();
         break;
     case 8:
-        showStatistics(getShapes());
+        menu.showStatistics(manager.getShapes());
         break;
     case 9:
-        saveToFile();
+        input = menu.readString("Enter filename to save: ");
+        bool res = manager.saveToFile(input);
+
+        if (res)
+        {
+            lastMessage = "Shapes saved to file";
+        }
+        else
+        {
+            lastMessage = "Failed to save shapes to file";
+        }
+        menu.pause();
         break;
     case 10:
-        loadFromFile();
+        input = menu.readString("Enter filename to load: ");
+        bool res = manager.loadFromFile(input);
+
+        if (res)
+        {
+            lastMessage = "Shapes loaded from file";
+        }
+        else
+        {
+            lastMessage = "Failed to load file";
+        }
+        menu.pause();
         break;
     case 11:
-        sortShapesByArea();
+        manager.sortShapesByArea();
+        lastMessage = "Shapes sorted by area";
+        menu.pause();
         break;
     case 12:
-        searchByType();
+        menu.clearScreen();
+        menu.drawHeader();
+        input = menu.readString("Enter type to search for: ");
+        manager.searchByType(input);
+
+        lastMessage = "Search complete";
+        menu.pause();
+
         break;
     case 13:
-        clearAllShapes();
+        input = menu.readString("Type YES to clear all shapes: ");
+        if (input == "YES")
+        {
+            manager.clearAllShapes();
+            lastMessage = "All shapes cleared";
+        }
+        else
+        {
+            lastMessage = "Clear operation canceled";
+        }
+        menu.pause();
         break;
     case 14:
         running = false;
@@ -66,7 +187,7 @@ void Controller::handleMenuChoice()
         break;
     default:
         lastMessage = "Invalid menu choice";
-        pause();
+        menu.pause();
         break;
     }
 }

@@ -1,4 +1,5 @@
 #include "model.hpp"
+#include "view.hpp"
 #include <iostream>
 #include <string>
 #include <vector>
