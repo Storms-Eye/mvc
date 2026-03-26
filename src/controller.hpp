@@ -1,19 +1,19 @@
+#include "model.hpp"
+#include <iostream>
 #include <string>
+#include <vector>
 
-class ShapeManager
+class Controller
 {
+private:
+    ShapeManager& manager;
+    Menu& menu;
+    bool running = true;
+    std::string lastMessage;
+
 public:
+    Controller(ShapeManager& model, Menu& menu) : manager(model), menu(menu) {}
+
     void handleMenuChoice();
-    int readInt(const std::string &prompt);
-    double readDouble(const std::string &prompt);
-
-    std::string readstd::string(const std::string &prompt);
-
-    Shape *getSelectedShape();
-    const Shape *getSelectedShape() const;
-    double computeArea(const Shape &s) const;
-
-    void selectShape();
-		void searchByType();
-		void clearAllShapes();
+    void run();
 };

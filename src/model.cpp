@@ -1,13 +1,7 @@
 #include "model.hpp"
+#include <sstream>
 
-void Model::seedData()
-{
-    shapes.push_back({nextId++, "Rectangle", 10, 10, 40, 20, {255, 0, 0}, true});
-    shapes.push_back({nextId++, "Circle", 30, 15, 25, 25, {0, 255, 0}, false});
-    shapes.push_back({nextId++, "Rectangle", 5, 40, 15, 10, {0, 0, 255}, false});
-}
-
-void Model::addShape(const string &type)
+Shape::Shape(const std::string &type)
 {
     double x = readDouble("Enter x position: ");
     double y = readDouble("Enter y position: ");
@@ -34,27 +28,30 @@ void Model::addShape(const string &type)
         s.selected = false;
     }
 
-    Shape s;
-    s.id = nextId++;
-    s.type = type;
-    s.x = x;
-    s.y = y;
-    s.width = w;
-    s.height = h;
-    s.color = {r, g, b};
-    s.selected = true;
+    id = nextId++;
+    type = type;
+    x = x;
+    y = y;
+    width = w;
+    height = h;
+    color = {r, g, b};
+    selected = true;
 
     if (type == "Circle")
     {
-        s.height = s.width;
+        height = width;
     }
 
-    shapes.push_back(s);
     lastMessage = type + " added and selected";
     pause();
 }
 
-void Model::moveSelectedShape()
+void ShapeManager::addShape(const Shape &s)
+{
+    shapes.push_back(s);
+}
+
+void Shape::moveSelectedShape()
 {
     Shape *s = getSelectedShape();
     if (!s)
@@ -70,12 +67,12 @@ void Model::moveSelectedShape()
     s->x += dx;
     s->y += dy;
 
-    ostringstream msg;
+    ostd::stringstream msg;
     msg << "Moved shape " << s->id << " to (" << s->x << ", " << s->y << ")";
     lastMessage = msg.str();
     pause();
 }
-void Model::resizeSelectedShape()
+void ShapeManager::resizeSelectedShape()
 {
     Shape *s = getSelectedShape();
     if (!s)
@@ -102,7 +99,7 @@ void Model::resizeSelectedShape()
     pause();
 }
 
-void Model::recolorSelectedShape()
+void ShapeManager::recolorSelectedShape()
 {
     Shape *s = getSelectedShape();
     if (!s)
@@ -123,7 +120,7 @@ void Model::recolorSelectedShape()
     lastMessage = "Selected shape color updated";
     pause();
 }
-void Model::deleteSelectedShape()
+void ShapeManager::deleteSelectedShape()
 {
     auto it = remove_if(shapes.begin(), shapes.end(), [](const Shape &s)
     {
@@ -148,7 +145,134 @@ void Model::deleteSelectedShape()
     pause();
 }
 
-void Model::sortShapesByArea()
+void ShapeManager::seedData()
+{
+    shapes.push_back({nextId++, "Rectangle", 10, 10, 40, 20, {255, 0, 0}, true});
+    shapes.push_back({nextId++, "Circle", 30, 15, 25, 25, {0, 255, 0}, false});
+    shapes.push_back({nextId++, "Rectangle", 5, 40, 15, 10, {0, 0, 255}, false});
+}
+
+Shape *ShapeManager::getSelectedShape()
+{
+    for (auto &s : shapes)
+    {
+        if (s.selected)
+        {
+            return &s;
+        }
+    }
+    return nullptr;
+}
+
+const Shape *ShapeManager::getSelectedShape() const
+{
+    for (const auto &s : shapes)
+    {
+        if (s.selected)
+        {
+            return &s;
+        }
+    }
+    return nullptr;
+}
+
+double ShapeManager::computeArea(const Shape &s) const
+{
+    if (s.type == "Rectangle")
+    {
+        return s.width * s.height;
+    }
+    if (s.type == "Circle")
+    {
+        double radius = s.width / 2.0;
+        return 3.14159265358979323846 * radius * radius;
+    }
+    return 0.0;
+}
+
+void ShapeManager::selectShape()
+{
+    if (shapes.empty())
+    {
+        lastMessage = "No shapes available to select";
+        pause();
+        return;
+    }
+
+    int id = readInt("Enter shape ID to select: ");
+    bool found = false;
+
+    for (auto &s : shapes)
+    {
+        s.selected = false;
+        if (s.id == id)
+        {
+            s.selected = true;
+            found = true;
+        }
+    }
+
+    lastMessage = found ? "Shape selected" : "Shape ID not found";
+    pause();
+}
+
+void ShapeManager::searchByType()
+{
+    clearScreen();
+    drawHeader();
+
+    string query = readString("Enter type to search for: ");
+    for (char &c : query)
+    {
+        c = static_cast<char>(tolower(static_cast<unsigned char>(c)));
+    }
+
+    std::cout << "\nSearch Results\n";
+    std::cout << "--------------\n";
+
+    int matches = 0;
+    for (const auto &s : shapes)
+    {
+        std::string typeLower = s.type;
+        for (char &c : typeLower)
+        {
+            c = static_cast<char>(tolower(static_cast<unsigned char>(c)));
+        }
+
+        if (typeLower.find(query) != string::npos)
+        {
+            std::cout << "ID " << s.id << ": " << s.type
+                 << " at (" << s.x << ", " << s.y << ")\n";
+            matches++;
+        }
+    }
+
+    if (matches == 0)
+    {
+        std::cout << "No shapes matched the search.\n";
+    }
+
+    pause();
+    lastMessage = "Search complete";
+}
+
+void ShapeManager::clearAllShapes()
+{
+    std::string confirm = readString("Type YES to clear all shapes: ");
+    if (confirm == "YES")
+    {
+        shapes.clear();
+        lastMessage = "All shapes cleared";
+    }
+    else
+    {
+        lastMessage = "Clear operation canceled";
+    }
+    pause();
+}
+}
+
+void ShapeManager::sortShapesByArea()
 {
     sort(shapes.begin(), shapes.end(), [this](const Shape &a, const Shape &b)
     {

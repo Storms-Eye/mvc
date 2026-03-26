@@ -1,12 +1,23 @@
 #include <string>
+#include <iostream>
+#include <vector>
+#include <istream>
+#include <ostream>
 
-struct Color {
+struct Color
+{
     int r = 255;
     int g = 255;
     int b = 255;
 };
 
-struct Shape {
+class Shape
+{
+public:
+    Shape(const std::string &type);
+
+    void moveSelectedShape();
+
     int id = 0;
     std::string type;
     double x = 0.0;
@@ -17,14 +28,34 @@ struct Shape {
     bool selected = false;
 };
 
-class Model
+class ShapeManager
 {
+private:
+    std::vector<Shape> shapes;
+    int nextId = 1;
+    bool running = true;
+
 public:
-    void seedData();
-    void addShape(const std::string &type);
-    void moveSelectedShape();
+    const std::vector<Shape> &getShapes();
+    void addShape(const Shape &s);
+
+
+    void saveToFile();
+    void loadFromFile();
+
     void resizeSelectedShape();
     void recolorSelectedShape();
     void deleteSelectedShape();
+
+    void seedData();
+
+    Shape *getSelectedShape();
+    const Shape *getSelectedShape() const;
+    double computeArea(const Shape &s) const;
+
+    void selectShape();
+    void searchByType();
+    void clearAllShapes();
+
     void sortShapesByArea();
 };
