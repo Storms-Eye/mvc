@@ -122,41 +122,23 @@ void View::drawMenu()
     std::cout << "14. Exit\n\n";
 }
 
-void View::showStatistics(const std::vector<Shape> &shapes)
+void View::showStatistics(int shapes, int rectangles, int circles, double totalArea, const Shape *selected, double selectedArea)
 {
     
     drawHeader();
 
-    int rectangles = 0;
-    int circles = 0;
-    double totalArea = 0.0;
-
-    for (const auto &s : shapes)
-    {
-        if (s.type == "Rectangle")
-        {
-            rectangles++;
-        }
-        else if (s.type == "Circle")
-        {
-            circles++;
-        }
-        totalArea += computeArea(s);
-    }
-
     std::cout << "Scene Statistics\n";
     std::cout << "----------------\n";
-    std::cout << "Total shapes: " << shapes.size() << "\n";
+    std::cout << "Total shapes: " << shapes << "\n";
     std::cout << "Rectangles : " << rectangles << "\n";
     std::cout << "Circles    : " << circles << "\n";
     std::cout << std::fixed << std::setprecision(2);
     std::cout << "Total area : " << totalArea << "\n";
 
-    const Shape *selected = getSelectedShape();
     if (selected)
     {
         std::cout << "Selected ID: " << selected->id << "\n";
-        std::cout << "Selected area: " << computeArea(*selected) << "\n";
+        std::cout << "Selected area: " << selectedArea << "\n";
     }
     else
     {

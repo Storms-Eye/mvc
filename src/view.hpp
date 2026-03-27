@@ -23,5 +23,5 @@ public:
     void drawHeader();
     void drawShapes(const std::vector<Shape>& shapes);
     void drawMenu();
-    void showStatistics(const std::vector<Shape>& shapes);
+    void showStatistics(int shapes, int rectangles, int circles, double totalArea, const Shape *selected, double selectedArea);
 };

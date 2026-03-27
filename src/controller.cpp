@@ -139,7 +139,28 @@ void Controller::handleMenuChoice()
     }
     case 8:
     {
-        menu.showStatistics(manager.getShapes());
+				const std::vector<Shape> &shapes = manager.getShapes();
+				int rectangles = 0;
+    		int circles = 0;
+    		double totalArea = 0.0;
+		
+		    for (const auto &s : shapes)
+		    {
+		        if (s.type == "Rectangle")
+		        {
+		            rectangles++;
+		        }
+		        else if (s.type == "Circle")
+		        {
+		            circles++;
+		        }
+		        totalArea += manager.computeArea(s);
+		    }
+				const Shape *selected = manager.getSelectedShape();
+        double selectedArea = 0.0;
+				if (selected) {selectedArea = manager.computeArea(*selected);}
+
+				menu.showStatistics(shapes.size(), rectangles, circles, totalArea, selected, selectedArea);
         break;
     }
     case 9:
