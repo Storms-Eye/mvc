@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-int clampColor(int value)
+static int clampColor(int value)
 {
     if (value < 0)
         return 0;
