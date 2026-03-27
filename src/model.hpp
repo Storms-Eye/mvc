@@ -13,7 +13,8 @@ struct Color
     int b = 255;
 };
 
-struct Shape {
+struct Shape
+{
     int id = 0;
     std::string type;
     double x = 0.0;

@@ -124,8 +124,9 @@ void View::drawMenu()
 
 void View::showStatistics(const std::vector<Shape> &shapes)
 {
+    
     drawHeader();
-
+    /*
     int rectangles = 0;
     int circles = 0;
     double totalArea = 0.0;
@@ -164,6 +165,7 @@ void View::showStatistics(const std::vector<Shape> &shapes)
 
     pause();
     lastMessage = "Displayed statistics";
+    */
 }
 
 std::string View::readString(const std::string &prompt)

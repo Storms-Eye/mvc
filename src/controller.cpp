@@ -19,7 +19,8 @@ void Controller::handleMenuChoice()
     int choice = menu.readInt("Enter choice: ");
 
     Shape s;
-    std::string input;
+    std::string input();
+    bool res = false;
 
     switch (choice)
     {
@@ -46,7 +47,7 @@ void Controller::handleMenuChoice()
         }
 
         int id = menu.readInt("Enter shape ID to select: ");
-        bool res = manager.selectShape(id);
+        res = manager.selectShape(id);
         if (!res)
         {
             lastMessage = "Shape ID not found";
@@ -57,12 +58,11 @@ void Controller::handleMenuChoice()
         }
 
         menu.pause();
-
         break;
     case 4:
         double dx = menu.readDouble("Enter delta x: ");
         double dy = menu.readDouble("Enter delta y: ");
-        bool res = manager.moveSelectedShape(dx, dy, input);
+        res = manager.moveSelectedShape(dx, dy, input);
         if (res)
         {
             lastMessage = input;
@@ -82,7 +82,7 @@ void Controller::handleMenuChoice()
             menu.pause();
             return;
         }
-        bool res = manager.resizeSelectedShape(newW, newH);
+        res = manager.resizeSelectedShape(newW, newH);
         if (res)
         {
             lastMessage = "Selected shape resized";
@@ -98,7 +98,7 @@ void Controller::handleMenuChoice()
         int g = menu.readInt("Enter new G (0-255): ");
         int b = menu.readInt("Enter new B (0-255): ");
 
-        bool res = manager.recolorSelectedShape(r, g, b);
+        res = manager.recolorSelectedShape(r, g, b);
         if (res)
         {
             lastMessage = "Selected shape color updated";
@@ -111,7 +111,7 @@ void Controller::handleMenuChoice()
         break;
     case 7:
 
-        bool res = manager.deleteSelectedShape();
+        res = manager.deleteSelectedShape();
         if (res)
         {
             lastMessage = "Selected shape deleted";
@@ -127,7 +127,7 @@ void Controller::handleMenuChoice()
         break;
     case 9:
         input = menu.readString("Enter filename to save: ");
-        bool res = manager.saveToFile(input);
+        res = manager.saveToFile(input);
 
         if (res)
         {
@@ -141,7 +141,7 @@ void Controller::handleMenuChoice()
         break;
     case 10:
         input = menu.readString("Enter filename to load: ");
-        bool res = manager.loadFromFile(input);
+        res = manager.loadFromFile(input);
 
         if (res)
         {
