@@ -8,7 +8,7 @@ int main()
     ShapeManager shapeManager;
     shapeManager.seedData();
 
-    Menu menu;
+    View menu;
 
     Controller controller(shapeManager, menu);
     controller.run();

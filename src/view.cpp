@@ -15,7 +15,7 @@ int clampColor(int value)
     return value;
 }
 
-void Menu::clearScreen()
+void View::clearScreen()
 {
     for (int i = 0; i < 30; ++i)
     {
@@ -23,7 +23,7 @@ void Menu::clearScreen()
     }
 }
 
-void Menu::readShape(Shape &shape)
+void View::readShape(Shape &shape)
 {
     int r, g, b;
     double x, y, w, h;
@@ -55,7 +55,7 @@ void Menu::readShape(Shape &shape)
     shape.height = h;
 }
 
-void Menu::drawHeader()
+void View::drawHeader()
 {
     std::cout << "==============================================\n";
     std::cout << "            SHAPE MANAGER MONOLITH            \n";
@@ -63,7 +63,7 @@ void Menu::drawHeader()
     std::cout << "Last message: " << lastMessage << "\n\n";
 }
 
-void Menu::drawShapes(const std::vector<Shape> &shapes)
+void View::drawShapes(const std::vector<Shape> &shapes)
 {
     if (shapes.empty())
     {
@@ -103,7 +103,7 @@ void Menu::drawShapes(const std::vector<Shape> &shapes)
     std::cout << "\n";
 }
 
-void Menu::drawMenu()
+void View::drawMenu()
 {
     std::cout << "Menu:\n";
     std::cout << " 1. Add Rectangle\n";
@@ -122,7 +122,7 @@ void Menu::drawMenu()
     std::cout << "14. Exit\n\n";
 }
 
-void Menu::showStatistics(const std::vector<Shape> &shapes)
+void View::showStatistics(const std::vector<Shape> &shapes)
 {
     drawHeader();
 
@@ -166,7 +166,7 @@ void Menu::showStatistics(const std::vector<Shape> &shapes)
     lastMessage = "Displayed statistics";
 }
 
-std::string Menu::readString(const std::string &prompt)
+std::string View::readString(const std::string &prompt)
 {
     std::cout << prompt;
     std::string line;
@@ -174,7 +174,7 @@ std::string Menu::readString(const std::string &prompt)
     return line;
 }
 
-int Menu::readInt(const std::string &prompt)
+int View::readInt(const std::string &prompt)
 {
     while (true)
     {
@@ -195,7 +195,7 @@ int Menu::readInt(const std::string &prompt)
     }
 }
 
-double Menu::readDouble(const std::string &prompt)
+double View::readDouble(const std::string &prompt)
 {
     while (true)
     {
@@ -216,7 +216,7 @@ double Menu::readDouble(const std::string &prompt)
     }
 }
 
-void Menu::pause()
+void View::pause()
 {
     std::cout << "\nPress Enter to continue...";
     std::string dummy;

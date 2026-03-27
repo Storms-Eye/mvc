@@ -8,12 +8,12 @@ class Controller
 {
 private:
     ShapeManager& manager;
-    Menu& menu;
+    View& menu;
     bool running = true;
     std::string lastMessage;
 
 public:
-    Controller(ShapeManager& model, Menu& menu) : manager(model), menu(menu) {}
+    Controller(ShapeManager& model, View& menu) : manager(model), menu(menu) {}
 
     void handleMenuChoice();
     void run();

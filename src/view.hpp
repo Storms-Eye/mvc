@@ -3,7 +3,7 @@
 #include <vector>
 #include "model.hpp"
 
-class Menu
+class View
 {
 private:
     std::string lastMessage;
